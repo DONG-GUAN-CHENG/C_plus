@@ -794,7 +794,7 @@ ps:#ifndef與#ifdef相反，當識別子未被定義時，下方直到#endif的�
 #### ***結構、聯合與列舉***  
 
 * ***結構(Structure)***  
-使用好的資料型態設計程式，可以增進程式的效率和可讀性。結構是資料的集合，在結構的``資料型態``，可以包含各種型態的變數或是陣列，也可以在結構內包含另外的結構，使用彈性大，其宣告的語法如下:  
+使用好的``資料型態``設計程式，可以增進程式的效率和可讀性。結構是資料的集合，在結構的``資料型態``，可以包含各種型態的變數或是陣列，也可以在結構內包含另外的結構，使用彈性大，其宣告的語法如下:  
 ```
 struct 結構名稱{  
 結構成員1->資料型態 欄位名稱_變數1;  
@@ -815,7 +815,8 @@ struct 結構名稱{
 結構名稱 結構變數(多個變數可以以逗點隔開);  
 
 ps:可以使用「.」運算子來存取結構成員，又稱為直接選取運算子，延續上方宣告的結構。  
-其中結構變數，都將參考一樣的樣板，有著一樣的結構
+其中結構變數，都將參考一樣的樣板，有著一樣的結構  
+定義一個結構時，等同於定義了一個新的資料型態
 ```  
 ex:  
 struct animal{  
@@ -824,9 +825,46 @@ int sex;
 }dog,cat ;  
 dog.sex=1;  
 cat.sex=0;  
-gets(dog.name);  
+gets(dog.name);  //讀入姓名字串
 gets(cat.name);  
 
+
+(1) 結構陣列  
+```  
+struct book{
+char title[40];
+float value;
+};
+
+宣告一個結構陣列  
+struct book labrary[MAX];  //MAX是一個int型的整數  
+ps:上述是宣告library為一個具有MAX個元素的陣列，陣列每個元素都是book型別的結構，可以利用結構陣列名稱[索引值].陣列成員名稱，去存取該元素
+```
+
+(2) 巢狀結構  
+```
+struct name{
+char firstname[20];
+char lastname[20];
+};
+
+struct guy{
+struct name handle;
+char favfood[20];
+float good;
+};
+
+struct guy fellow={
+{"DONG","GUAN"},
+"teacher",
+15};
+
+操作:
+fellow.handle.firstname //結果為DONG
+fellow.handle.lastname //結果為GUAN
+fellow.favfood //結果為teacher  
+fellow.good //結果為15
+```
 * ***將結構傳遞進函式***  
 結構也可作為函式的引數傳入函式之中  
 ```  
@@ -848,14 +886,13 @@ int main(void)
 { 
 int i;  
 struct friends *p =f;  //指向friends結構的指標p
-for(i=0;i<10,i++,p++)
-{  
-scanf("%s",p->birth);  
-scanf("%d",&p->sex);  
-scanf("%d",p->name); 
+
+cin>>p->birth;  //p是一個指標，使用「->」存取結構
+cin>>p->sex; 
+cin>>p->name;
+
 } 
-} 
-ps 1:其中p是一個指標，存取結構中的字元陣列birth時，直接使用「->」，不需再加上&運算子，也就是說指向結構內的成員birth為一個指標，指向一個字元陣列，因此可直接放在scanf()函式後當引數  
+ps 1:其中p是一個指標，存取結構中的字元陣列birth時，直接使用「->」，不需再加上&運算子，也就是說指向結構內的成員birth為一個指標，指向一個字元陣列，因此可直接以cout()函式進行輸出
 ps 2:使用「->」運算子時，並不需使用「*」運算子取得結構實體，然後配合「.」運算子去取得結構內的成員  
 ex:p->sex 不需要用(*p).sex方式
 ```
@@ -868,58 +905,54 @@ union 聯合名稱{
 ...
 }聯合名稱;
 ```  
-聯合內的所有成員是``共用記憶體位置``，成員間不需要是相同型態，但同一時間只能以一種型態來解釋該塊記憶體  
+聯合內的所有成員是``共用記憶體位置(同一塊記憶體空間)``，成員間不需要是相同型態，但同一時間只能以一種型態來解釋該塊記憶體  
+```
+/* Union */
+#include <iostream>
+using namespace std;
+union my_union { //宣告一個聯合ul
+    int a;
+    char b;
+    double c;
+};
+int main()
+{
+    union my_union u1;
+    u1.a = 65;
+    cout<<u1.a<<" "<<u1.b<<" "<<u1.c<<endl;
+	return 0;
+}
+```
 
-ex:  
-uniom my_union{  
-int i;  
-float f;
-};  
-
-int main(){  
-union my_union un;  //union可加可不加  
-un.i=10;  
-un.f=10.25;  
-printf("%d %f",un.i,un.f);  
-return 0;  
-}  
-
-OR  
- 
-uniom my_union{  
-int i;  
-float f;
-}un;  
-
-int main(){  
-un.i=10;  
-un.f=10.25;  
-printf("%d %f",un.i,un.f);  
-return 0;  
-}  
-ps 1:透過上方例子可以發現當 un.f 被設值後， un.i 的值就不對了。事實上，那就是 10.25 的 float 型態二進位值，直接用 int 的方式去解析，所以顯示了一個像是亂數的值。也因為這種特性，當要故意讓 C 語言以錯誤的型別去讀取資料時，可以透過 union 。  
+ps 1:上述第二行指定結構成員ul.a的值為65，最後分別以整數、字元及浮點數解釋該記憶體並印出資料，可以知道因為是共用同一塊記憶體空間，所以印出的值會因為解讀方式不同而顯示出不同的值。其中因為65剛好是ASCII中字元A的編碼，所以印出字母A，因各種型態指定資料方式的不同，以不同型態指定同一塊記憶體值時，可能會造成前一次指定失敗  
 
 ps 2:此範例宣告了一個聯合ul，具有３個成員，變數a、字元陣列b與浮點數c，在記憶體中使用同一塊空間配置變數，而存取聯合成員與結構成員相同，同樣使用「.」與「->」運算子。而 union 的大小，就是 union 結構中型態的最大值，如果 union 中宣告了一個 short (2 bytes)，和一個 double (8 bytes)，那這個 union 的大小就會是 8 bytes。  
 
 * ***列舉型態 (enumeration)***  
-列舉可以定義一組指派給變數的具名整數常數，可將數個整數常數命名，所列舉變數可指定為其中之一個整數變數，宣告的語法如下:  
-``` enum 列舉名稱 {整數常數1,整數常數2,...}變數名稱;```  
+列舉可以定義一組指派給變數的具名整數常數，可將數個整數常數命名，所列舉變數可指定給其中之一個整數變數，宣告的語法如下:  
+``` 
+enum 列舉名稱 
+{整數常數1,
+ 整數常數2,...
+} 列舉變數名稱;
+``` 
+```
 ex 1:   
 enum people{female,male} mary;  
-
+```
 ps 1:上方的範例宣告一個列舉型態，名稱為people，具有female整數常數與male整數常數，編譯器會自動初始化整數常數，使得female為0，male為1，並宣告一個列舉變數mary，可將mary指定給其中的任何變數  
-
+```
 ex 2:  
 mary=female;  
 if(mary==female)  
-printf("mary is a women");  
-
-ps 2:列舉變數就是整數型態的變數，列舉變數也可儲存不再列舉宣告內的數值，但為了程式結構明確性不建議使用  
+cout<<"mary is a women";  
+```
+ps 2:列舉變數就是整數型態的變數，列舉變數也可儲存不再列舉宣告內的數值，但為了程式結構明確性，使用列舉變數時，不宜指定非在列舉中的整數常數給列舉變數  
 
 
 * ***typedef 指令***  
 自訂型態(typedef) 沒有定義新型態的功能，但可以將現有的型態以新的名稱表示，節省程式撰寫的時間，也可使程式更加益讀且較有結構，宣告語法如下: 
-``typedef 舊資料型態名稱 新資料型態名稱;``  
+``typedef 舊資料型態及名稱 新資料型態名稱;``  
 ex:  
 typedef struct skill{  
 int head;  
@@ -934,129 +967,21 @@ ps: 上方範例，SKILL並不是結構變數，而是typedef所定義的新型�
 #### ***輸出入與檔案操作***   
 
 * ***控制台(console)的I/O***  
-C語言當中兩個最基本的輸出入函式:printf()和scanf()函式  
-(1) printf()函式  
-雛形宣告如下:  
-```int printf(const char * control_string,arguments...);```  
-ps:printf()函式會依據控制字串control_string的格式，輸出至螢幕上，在control_string中可使用一些特殊符號，來產生換行效果或是往後去對應argument內的變數輸出，可用的特殊符號如下:  
-(變數轉換符號)%d->整數, %f->浮點數,%lf->雙精度浮點數,%c->字元,%s->字串,%%->印出%,\\->印出\,%e->浮點數(科學記號，小寫的e),%E->浮點數(科學記號，大寫的E),%g->在%e,%ｆ中較短的表示法，不列印不必要的0和小數點,%o->八進位整數(無正負號),%x->十六進位整數,%p->指標位址,\'->印出',\''->印出'',\n->換行,\b->逼一聲,\t->Tab  
-
-ps:上述輸出格式不為%%,%c,%p時，可以指定輸出的最小寬度(使用幾格輸出)，或是小數點的位數  
-
-ex:  
-printf("%5d\n",10); ->最小寬度5，因此在印出10之前會有三格空白  
-printf("%2.4f\n",12.35); ->最小寬度2，小數點寬度四格，因小數點後會以空白補齊列出12.3500  
-printf("%-5d\n",20) ->其中「-」符號是指定printf函是在輸出時「向左對齊」，一般默認為向右對齊，故在輸出20後會有三個空白  
- 
-(2) scanf()函式  
-雛形宣告如下:  
-```int scanf(const char * control_string,arguments...);```  
-scanf函式與printf函式類似，根據控制字串的描述，等待使用者輸入資料，使用者輸入後儲存到後方arguments的記憶體位置內，control_string區域可使用的特殊符號包含:%d->讀入整數(有正負號),%u->讀入整數(無正負號),%f->讀入浮點數,%c->讀入浮點數(科學記號,小寫的e),%o->八進位整數(無正負號),%x->十六進位整數,%p->指標位址,%s->讀入字串  
-ps:scanf也可指定最小寬度，它會限制儲存進變數的位數個數，不建議使用。在儲存字串時，當遇到空格或換行字元時就會結束，因此我們常常使用gets函式來取得字串而非scanf函式  
-
-(3)getchar()輸入函式與putchar()輸出函式  
-兩函式的雛形宣告如下:  
-``` 
-int getchar(void);  
-int putchar(int ch);
+C++當中兩個最基本的輸出入函式:cin和cout函式  
+(1) cout函式  
+cout通常搭配「<<」運算子使用:  
 ```
-getchar()函式會要求使用者輸入一個字元，並回傳該字元的ASCll值，這是因為當getchar()發生錯誤時，會回傳EOF(定義在stdio.h中的負整數值)，所以會以int型態回傳，不過在使用時也可以直接以一個char型態變數來接受getchar()的回傳值，c語言會自動做型態的轉換  
-putchar()函式會將引數中的ch輸出至螢幕上，與getchar相同，當函式執行成功時，putchar會以int型態回傳該字元的ASCll值，若失敗則回傳EOF  
+cout<<"字串";
+cout<<變數;
+```  
+若我們希望在輸出時控制輸出的格式，就必須引進<iomanip>標頭檔。常用的IO控制器有:dec->10進位,oct->8進位,hex->16進位,setbase(int n)->n進位,setw(n)->指定欄位寬度為n,setfill(char c)->不到填充寬度時以c字元填充
 
-* ***串流(Stream)的概念***  
-C語言中，為了提供對系統I/O有一致性的介面，建立了一個抽象的概念，稱為串流(Stream)，也就是一連串的資料，C語言中的檔案等同於字元的串流，許多裝置都可視為串流，包含:螢幕、鍵盤、記憶體、磁帶...等等，都可以串流來達到輸出入行為上的一致性。  
-可分為兩種:  
-1. 文字串流 (Text stream):處理文字串流時，串流的內容為一個個ASCll字元，但對於特殊字元(\n)，會做特殊處理，轉換為應有的格式，因此寫入的串流資料並不會與寫入檔案的資料完全相同  
-2. 二進位串流 (binary stream):寫入串流的資料將與寫入檔案的資料完全相同，存取這兩種串流模式的函式也不同  
-C語言定義了三種基本串流:stdin、stdout與stderr  
-(1) stdin(standard input):標準輸入的串流，使用者輸入的資料會放置在這  
-(2) stdout(standard output):標準輸出的串流，所有輸入到螢幕上的資料會放置在這  
-(3) stderr(standard error):標準錯誤輸出的串流，在這個串流內的資料會被輸出到螢幕上，不過作業系統或程式可根據輸出資料所在的串流，判斷是否要做紀錄，通常stderr會被作業系統留下記錄檔  
-
-* ***檔案的I/O***  
-C語言使用串流的概念進行檔案處理，檔案的I/O方式是:``宣告一個FILE型態的指標``，指向一個開啟的串流，藉由間接存取指標來讀取或寫入檔案。  
-
-(1) fopen()與fclose()函式:串流的開啟與關閉，雛形宣告如下:  
-```  
-FILE *fopen(const char *fname,const char *mode);  
-int fclose(FILE *stream)  
-```  
-ps 1: fopen()函式會嘗試以mode字串來記錄資料的模式，開啟以fname字串為名稱的檔案，並回傳一個串流;若開啟失敗，則回傳NULL指標。fclose()函式會嘗試關閉引數中的串流，成功則回傳0，失敗則回傳EOF(end of file)  
-ps 2:fopen()函式的mode有很多種包含:"r"->開啟一個檔案，只能讀取 ,"w"->開啟一個檔案，只能寫入 ,"a"->只能以附加在最後的方式寫入檔案 ,"rb、wb、ab“->開啟一個二進位檔案，只能附加在最後 ,"r+"->開啟一個檔案，可以讀取及寫入;若檔案不存在，則回傳NULL ,"w+"->建立一個檔案，可以讀取及寫入，若檔案存在，則刪除原檔 ,"a+"->開啟一個檔案，可以讀取及寫入，若檔案不存在，則建立新檔, "rb+、wb+、ab+"->開啟一個二進位檔案，用法與上述相同  
-
-(2) fgetc()與fputc()函式:從串流中輸出入字元  
-可從串流中輸出與輸入單一個字元，它們的雛形宣告如下:  
-```  
-int fgetc(FILE *stream);  
-int fputc(int ch,FILE *stream);
-```  
-fgetc函式的引數為一個串流，fgetc函式從串流中取得下一個字元，回傳該字元值，若遇到錯誤或是檔案已經結束時則回傳EOF  
-fputc函式會將第一個引數轉換為char型態，將此字元寫入串流stream中，若成功則回傳該字元，失敗則回傳EOF  
-ex:  
-```
-#include <stdio.h>
-int main(void)
-{
-  char ch;  
-  FILE *fp;  
-  if((fp=fopen("12-3-1-textfile.txt","r")) == NULL) exit(1);
-  while((ch = fgetc(fp)) != EOF)
-    fputc(ch,stdout);  //將字元一個個輸出到stdout(螢幕)
-  fclose(fp);
-  system("pause");
-}  
-```  
-
-
-(３) fgets()與fputs()函式:從串流中輸出入字串  
-可以指定串流輸出入字串，它們的雛形宣告如下:  
-```  
-char *fgetc(char *str, int num,FILE *stream);  
-int fputc(char *str, FILE *stream);
-```  
-ps 1:fgets函式會從stream內讀取字串，直到遇到(\n字元)，或是直到num個字元被輸入，之後存入字元陣列str中，不同於gets函式，fgets會將換行字元也儲存。若fgets函式執行成功，則回傳str，反之則會傳NULL  
-ps 2:fputs函式會將字串str輸出至stream，不同於puts函式，fputs函式不會自動在輸出完畢後加上換行字元，而puts函式則自動換行。若fputs函式執行成功則回傳一個非零值，反之則回傳EOF  
-ex:  
-```
-#include <stdio.h>
-int main(void)
-{
-  char buf[80];
-  FILE *fp;
-  if((fp=fopen("12-3-1-textfile.txt","r")) == NULL) exit(1);
-  while(fgets(buf,80,fp) != NULL) 
-    fputs(buf,stdout);
-  fclose(fp);
-  system("pause");
-}  
-```
-(4) fprintf()與fscanf()函式:串流輸出入函式   
-與先前的printf和scanf函式功能相同，只是多加了一個指標引數，使其可以指定串流輸出，函式雛形宣告如下:  
-```  
-int fprintf(FILE *fp, char *control string, arguments...);  
-int fputc(FILE *fp, char *control string, arguments...);  
-```   
-
-(5) fread()與fwrite()函式:二進位串流輸出入函式   
-是專門用在二進位串流的I/O函式，好處在於對於數值的輸出入，不必轉換為字元形式，效率上會比較好，而且在二進位的串流下，不限制任何型態的I/O，只注意目前輸出或輸入了多少個位元組  
-```
-size_t fread(void *buffer,size_t size, size_t num, FILE *fp);  
-size_t fwrite(void *buffer,size_t size, size_t num, FILE *fp);  
-```
-ps:void型態的指標，可以指向任意型態的指標，因此這兩函式存取型態不受限制  
-ps 1:fread()函式會從二進位串流的目前位置，讀取num個大小為size的為元組，之後儲存進入buffer陣列(任意型態)，最後回傳成功讀取的資料數。藉由回傳值是否等於num值，可以判斷檔案是否讀取完畢，回傳值等於num時，表示檔案讀取已結束   
-ps 2:fwrite()函式會從buffer陣列中，取num個大小為size的位元組，寫入二進位串流，最後回傳值為成功寫入的位元組，如果回傳值小於num值，則表示輸出過程發生錯誤  
-
-(6) fseek()、ftell()與rewind()函式:變更在串流內的位置函式  
-可設定檔案指標在串流中的位置，串流都是直線型的，往下走就無法回頭，這三個函式使我們不必重新開啟串流，可以直接改變目前所在位置，設置在串流內自由移動，程式雛形宣告如下:  
-```  
-int fseek(FILE *fp,long offset,int origin);  
-long ftell(FILE *stream);  
-void rewind(FILE *stream);  
-```  
-ps 1: fseek函式可設定檔案指標在串流中的位置，會從指定的origin位置，移動offset個位元組，若fseek函式更改成功則回傳0，更改失敗則回傳非零值  
-ps 2: ftell函式會回傳stream的目前位置，若發生錯誤則回傳-1  
-ps 3: rewind函式會將stream的目前位置設為該stream的開頭  
+* ***文字檔的I/O***  
+在C++中，若要進行檔案輸出輸入操作，有以下三個類別可以使用，這邊要注意所謂的，檔案的 IO (輸入 \ 輸出)，是以程式的角度而言，
+檔案開啟為輸入狀態時，是指將由檔案把資料讀入;檔案開啟為輸出狀態時，是指程式將輸出資料到檔案，故我們將資料由檔案輸入到程式稱之為``讀取``，將資料由程式輸出到檔案稱之為``寫入``:  
+(1) Ofstream:進行``輸出寫入``檔案的類別  
+(2) ifstream:進行從``檔案讀取與輸入``的類別  
+(3) fstream:可以進行``讀與寫``的類別  
 
 ***
 #### ***動態記憶體配置***    
