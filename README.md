@@ -1056,7 +1056,7 @@ ex:
 using namespace std;
 int main(void)
 {
-	ifstream myfile("12-2-4.txt");  
+	ifstream myfile("guancheng.txt");  
   
     if(!myfile.is_open()) { 
         cout << "檔案開啟失敗" << endl;
