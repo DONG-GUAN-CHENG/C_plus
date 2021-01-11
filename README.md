@@ -1048,6 +1048,37 @@ seekg(距離,起始位置);
 seekp(距離,起始位置);
 ps:「距離」為一個數字，代表從起始位置開始算起的位元數。而「起始位置」可以是以下三個值:ios::beg->從檔案開頭往後算, ios::end->從檔案最後往前算, ios::cur->從目前位置往後算
 ```
+```
+ex:
+/*≠p∫‚¿…Æ◊¶rº∆µ{¶°*/
+#include <iostream>
+#include <fstream> 
+using namespace std;
+int main(void)
+{
+	ifstream myfile("12-2-4.txt");  
+  
+    if(!myfile.is_open()) { 
+        cout << "檔案開啟失敗" << endl;
+        return 1; 
+    } 
+ 	long begin, end;
+ 	char ch;
+ 	begin = myfile.tellg();  //開始時get指標位置
+  	myfile.seekg (0, ios::end); //使檔案起始位元數為0，並由檔案最後往前算
+  	end = myfile.tellg(); //結束時get指標位置
+  	cout<<"檔案大小: "<<end-begin<<" bytes"<<endl; 
+  	cout<<"檔案內容:"<<endl; 
+  	myfile.seekg (0, ios::beg);
+  	while(!myfile.eof()){
+  		myfile.get(ch);
+        if(!myfile.eof())    
+            cout << ch;
+  	}
+    myfile.close();
+    return 0;
+}
+```
 ***
 #### ***動態記憶體配置***    
 假設現在必須紀錄不明大小的物件，並分析這些物件，首先必須將所有物件獨進記憶體中，但不到執行期間，不會知道，到底一次有多少物件被讀入，因此需要動態配置記憶體機制    
