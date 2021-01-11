@@ -1050,7 +1050,7 @@ ps:「距離」為一個數字，代表從起始位置開始算起的位元數�
 ```
 ```
 ex:
-/*≠p∫‚¿…Æ◊¶rº∆µ{¶°*/
+/*計算所讀檔案大小位元*/
 #include <iostream>
 #include <fstream> 
 using namespace std;
