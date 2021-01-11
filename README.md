@@ -987,7 +987,41 @@ i. 開啟(open)檔案
 ``
 open(檔案名稱，開啟模式;)
 ``
+ps 1:檔案名稱是想開啟的檔案名稱，也可以包含檔案路徑位置。開啟模式有下列幾種:ios::in->輸入模式, ios::out->寫入模式, ios::ate->從檔案尾端輸入輸出, ios::app->在檔案尾端繼續寫入, ios::trunc->若檔案已存在則清除檔案內容, ios::binary->以二進位模式開啟檔案  
 
+ps 2:也可以一次使用多個開啟模式，也可以不標明開啟模式，系統會依照呼叫的類別使用預設的開啟模式:ofstream->ios::out, ifstream->ios::in, fstream->ios::in 和 ios::out  
+```
+ofstream myfile; //首先宣告一個ofstream物件
+myfile.open("data.txt"); //系統使用ofstream預設的寫入模式開啟data
+myfile.open("data.txt",ios::out | ios::trunc); //已覆蓋寫入的模式開啟data
+```
+
+ii.關閉(close)檔案  
+使用完檔案後，可以使用close()函式來關閉檔案，會釋放開啟檔案時所佔用的資源，讓其他物件也可開啟此檔案，用法如下:  
+```
+myfile.close(); 
+```
+
+iii.檔案狀態判斷函式  
+想知道檔案有沒有成功開啟可以使用is_open()函式，若物件成功開啟，則回傳true，否則回傳false  
+```
+if(myfile.is_open()){
+//開檔成功
+}else{
+//開檔失敗
+}
+```
+除了is_open之外還有其他檔案處理的函式，如下:  
+bad():當讀檔寫檔失敗時，回傳true。ex:檔案為開啟或是寫檔時硬碟空間不夠  
+eof():當讀到檔案最後時，會回傳true  
+good():最常用的判斷函式。當bad和eof函式回傳true時，此函式便會回傳false，也就是讀寫檔成功且檔案還沒讀完，會回傳true  
+
+iv. get(）與 put()函式  
+這兩個是最基本的文字輸入與輸出函式，基本用法為:  
+```
+myfile.get(char); //把檔案指標指導的字元讀進char變數當中
+myfile.put(char); //會把char字元寫入到檔案中
+```
 ***
 #### ***動態記憶體配置***    
 假設現在必須紀錄不明大小的物件，並分析這些物件，首先必須將所有物件獨進記憶體中，但不到執行期間，不會知道，到底一次有多少物件被讀入，因此需要動態配置記憶體機制    
