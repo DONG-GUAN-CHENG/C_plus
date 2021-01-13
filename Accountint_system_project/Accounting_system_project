@@ -1,0 +1,115 @@
+/* ============================================== */
+/* 記帳系統專題製作 */  
+本專案所開發之系統功能為:讓使用者進行記帳分類、觀看紀錄以及統計及分析功能，使平常在生活中的花費都能精準掌控
+/* ============================================== */  
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <ctime>
+#include <stdlib.h>
+#define MaxNum 256 //前置處理器
+using namespace std;
+
+void writeToFile(int year, int month, int type, int amount){ //創建一個寫入到檔案的函式
+    ofstream myfile; //宣告一個ofstream物件用以進行輸出寫入
+    myfile.open("data.txt",ios::out | ios::app); //使用open方法開啟檔案並定義開啟模式
+    if(!myfile.is_open()) {
+        cout << "檔案開啟失敗" << endl;
+        return;
+    }
+    myfile<<year<<" "<<month<<" "<<type<<" "<<amount<<endl;
+    myfile.close();
+}
+
+void readFile(int year, int month){ //創建一個檔案讀取到程式的函式
+    int readYear, readMonth, readType, readAmount;
+    int record[8]={0}; //宣告一個含有八個元素的陣列
+    ifstream myfile; //宣告一個ifstream物件用以進行讀取
+    myfile.open("data.txt");
+    if(!myfile.is_open()) {
+        cout << "檔案開啟失敗" << endl;
+        return;
+    }
+    while (myfile>>readYear>>readMonth>>readType>>readAmount)
+    {
+        if(readYear==year && (readMonth==month || month==0)){
+            record[0]+=readAmount;
+            record[readType]+=readAmount;
+        }
+    }
+    cout<<"年份: "<<year<<"     月份: "<<month<<endl;
+    if(record[0]==0)cout<<"無此月份資料"<<endl;
+    else{
+        cout<<"種類\t金額\t比例"<<endl;
+        cout<<"=============================================="<<endl;
+        cout<<"總額\t"<< record[0]<<endl;
+        cout<<"食\t"<< record[1]<<"\t"<<record[1]*100/record[0]<<"%"<<endl;
+        cout<<"衣\t"<< record[2]<<"\t"<<record[2]*100/record[0]<<"%"<<endl;
+        cout<<"住\t"<< record[3]<<"\t"<<record[3]*100/record[0]<<"%"<<endl;
+        cout<<"行\t"<< record[4]<<"\t"<<record[4]*100/record[0]<<"%"<<endl;
+        cout<<"育\t"<< record[5]<<"\t"<<record[5]*100/record[0]<<"%"<<endl;
+        cout<<"樂\t"<< record[6]<<"\t"<<record[6]*100/record[0]<<"%"<<endl;
+        cout<<"其它\t"<< record[7]<<"\t"<<record[7]*100/record[0]<<"%"<<endl;
+        cout<<endl;
+    }
+    myfile.close();
+}
+/*----------------主程式區塊----------------*/
+int main()
+{
+    int temp;
+    struct tm *local;
+    time_t t;
+    char* dt;
+
+    while(true){
+      cout<<"要執行下列哪項動作？ 1. 記帳 2. 觀看紀錄 3. 離開系統 ";
+      cin>>temp;
+      switch(temp){
+          case 1:
+              int type;
+              int amount;
+              cout<<"記帳 1)今日支出 2)選擇日期"; //在記帳下又分出一個switch判斷
+              cin>>temp;
+              switch(temp){
+                  case 1:
+                      t=time(NULL);
+                      dt = ctime(&t);
+                      local=localtime(&t);
+                      cout<<1900 + local->tm_year<<"年"<<1+local->tm_mon<<"月"<<local->tm_mday<<"日"<<endl;
+                      cout<<"分類 :1)食 2)衣 3)住 4)行 5)育 6)樂 7)其它";
+                      cin>>type;
+                      cout<<"支出金額: ";
+                      cin>>amount;
+                      writeToFile(1900+local->tm_year,1+local->tm_mon,type,amount);
+                      break;
+                  case 2:
+                      int getYear, getMonth;
+                      cout<<"年份:";
+                      cin>>getYear;
+                      cout<<"月份:";
+                      cin>>getMonth;
+                      cout<<"分類 :1)食 2)衣 3)住 4)行 5)育 6)樂 7)其它";
+                      cin>>type;
+                      cout<<"金額: ";
+                      cin>>amount;
+                      writeToFile(getYear,getMonth,type,amount);
+                      break;
+              }
+              break;
+          case 2:
+              int year;
+              int month;
+              cout<<"欲查詢觀看之年份:";
+              cin>>year;
+              cout<<"欲查詢觀看之月份(輸入 0 可觀看整年紀錄):";
+              cin>>month;
+              readFile(year,month);
+              break;
+          case 3:
+              exit(0);
+              break;
+      }
+  }
+  return 0;
+}
