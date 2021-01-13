@@ -2,15 +2,15 @@
 /* 記帳系統專題製作 */  
 本專案所開發之系統功能為:讓使用者進行記帳分類、觀看紀錄以及統計及分析功能，使平常在生活中的花費都能精準掌控
 /* ============================================== */  
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <ctime>
-#include <stdlib.h>
 #define MaxNum 256 //前置處理器
 using namespace std;
 
-void writeToFile(int year, int month, int type, int amount){ //創建一個寫入到檔案的函式
+void writeToFile(int year, int month, int type, int amount){ //創建一個寫入到檔案的函式，包含年、月、種類、金額
     ofstream myfile; //宣告一個ofstream物件用以進行輸出寫入
     myfile.open("data.txt",ios::out | ios::app); //使用open方法開啟檔案並定義開啟模式
     if(!myfile.is_open()) {
