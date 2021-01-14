@@ -1,0 +1,106 @@
+/* ============================================== */
+/* 程式目的:以讀取各產品項目評分並印出評分排序  */
+/* ============================================== */
+#include <iostream>
+#include <fstream> 
+#include <string>
+#define ProNum 10          /*定義最大的產品數量 */
+using namespace std;
+typedef struct rateNode { /*自定義結構以新結構名稱RATE_紀錄評分*/
+  float n;
+  struct rateNode *next;
+} RATE;
+typedef struct node { /* 自定義結構以新結構名稱node_儲存產品資料*/
+  int i; // 編號
+  string name;  //產品名稱
+  float aveRate;  //用戶平均分數
+  RATE *rate;  //紀錄評分的串列
+} PRODUCT;
+PRODUCT ProList[ProNum]; //宣告結構陣列
+/* ---------------------------------------------- */
+/*  讀取產品資料                                  */
+/* ---------------------------------------------- */
+void readDate(){
+  ifstream my_read_file("movie_data.txt");  //利用串流宣告讀取開啟檔案
+  string name;
+  float tmpRate;
+  int count=0;
+  while(my_read_file>>name) //讀取各產品的loop
+  {
+    RATE *tmpNode, *topNode=NULL;
+    ProList[count].i=count;
+    ProList[count].name=name;
+    /*讀取產品評分的loop*/
+    /*當讀取到下一個產品名稱時無法存入float型態，則回傳false，跳出迴圈*/
+    while(my_read_file>>tmpRate){   
+        tmpNode=new RATE; // 配置一塊新的記憶體空間給tmpNode
+        tmpNode->n=tmpRate;
+        tmpNode->next=NULL; //串列結尾
+        if(topNode==NULL)ProList[count].rate=tmpNode;
+        else topNode->next=tmpNode;
+        topNode=tmpNode;
+    }
+    my_read_file.clear();//上一次讀取失敗，則必須清掉錯誤才可以繼續讀取
+    count++;
+  }
+  my_read_file.close();
+}
+/* ---------------------------------------------- */
+/* 計算評分平均分數                               */
+/* ---------------------------------------------- */
+void average(){
+  float sum;
+  int count;
+  RATE *tmpNode;
+  for(int i=0;i<ProNum;i++){  //讀取各產品資料
+    sum=0;
+    count=0;
+    tmpNode=ProList[i].rate;
+    while(tmpNode!=NULL){  //讀取各產品資料的各個評分
+      sum+=tmpNode->n;
+      count++;
+      tmpNode=tmpNode->next;
+    }
+    ProList[i].aveRate=sum/count; //把結構陣列裡aveRate內所得的平均分數做儲存
+  }
+}
+/* ---------------------------------------------- */
+/* 利用selection sort 演算法進行排序                                   */
+/* ---------------------------------------------- */
+void sort()   
+{
+  int i,j;
+  PRODUCT temp;
+  for( i = 0; i < ProNum-1; i++ ) //前面的元素由第一個開始
+    for( j = i + 1; j < ProNum; j++ ) // 後面元素
+      if( ProList[i].aveRate < ProList[j].aveRate ) //若得到評分較高的往前，若較小則往後
+      {
+        temp = ProList[i];
+        ProList[i] = ProList[j];
+        ProList[j] = temp;
+      }
+}
+/* ---------------------------------------------- */
+/* 顯示結果                                      */
+/* ---------------------------------------------- */
+void result(){
+  int n;
+  cout<<"想查看排行榜前幾名的產品呢？"<<ProNum<<") ";
+  cin>>n;
+  cout<<"=============================:"<<endl;  
+  cout<<"產品排行榜前"<<n<<"名"<<endl;
+  cout<<"=============================:"<<endl; 
+  for(int i=0;i<n;i++)
+    cout<<i+1<<": "<<ProList[i].name<<" "<<ProList[i].aveRate<<"分"<<endl; 
+}
+/* ---------------------------------------------- */
+/* 主程式                                      */
+/* ---------------------------------------------- */
+int main()
+{
+  readDate();
+  average();
+  sort();
+  result();
+  return 0;
+}
