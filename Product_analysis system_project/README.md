@@ -22,4 +22,3 @@
 
 *** 
 ### [程式執行結果]
-![error](https://github.com/DONG-GUAN-CHENG/C_plus/blob/main/Accountint_system_project/result_photo.png)
