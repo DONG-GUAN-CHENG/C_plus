@@ -22,4 +22,3 @@
 
 *** 
 ### [程式執行結果]
-[!][alt](https://github.com/DONG-GUAN-CHENG/C_plus/blob/main/Product_analysis%20system_project/result_photo2.png)
